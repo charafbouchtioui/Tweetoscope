@@ -1,0 +1,10 @@
+groups:
+- name: TweetoscopeAletrts
+  rules:
+  - alert: Tweet_Popularity
+    expr: n_tot > 200
+    labels:
+      severity: Warning
+    annotations:
+      title: 'the tweet number {{ $labels.tweet }}'
+      description: 'Warning ! the tweet identified with the id {{ $labels.tweet }} is expected to be popular after observing it for {{ $labels.obs }}'

@@ -1,0 +1,21 @@
+## The base image for CI/CD stage build of the cpp files
+
+FROM ubuntu
+# Configure the image for our build environement
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake \
+    build-essential \
+    libboost-all-dev \
+    libssl-dev \
+    git \
+    sudo \
+    pkg-config \
+    librdkafka-dev
+RUN git config --global http.sslverify false
+# Install cppkafka
+RUN git clone https://github.com/mfontanini/cppkafka.git
+RUN cd cppkafka; mkdir build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=/usr;sudo make install -j
+#Install Gaml
+RUN git clone https://github.com/HerveFrezza-Buet/gaml
+RUN cd gaml;mkdir -p gaml/build;cd gaml/build;cmake .. -DCMAKE_INSTALL_PREFIX=/usr;make -j;sudo make install

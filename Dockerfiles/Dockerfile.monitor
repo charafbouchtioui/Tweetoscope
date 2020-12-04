@@ -1,0 +1,8 @@
+FROM python:3.8-slim-buster
+
+
+COPY ["requirements.txt","monitor/src","params/params_py.config","/app/src/"]
+RUN python -m pip install --upgrade setuptools pip wheel
+WORKDIR /app/src
+RUN yes | pip install -r requirements.txt
+CMD python ./tweet-monitor.py params_py.config

@@ -1,0 +1,142 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-service
+spec:
+  type: NodePort
+  selector:
+    app: zookeeper
+  ports:
+  - protocol: TCP
+    targetPort: 2181
+    port: 2181
+    nodePort: 30185
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-pod
+  labels:
+    app: zookeeper
+spec:
+  containers:
+  - name: zookeeper-container
+    image: zookeeper
+    imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+spec:
+  selector:
+    app: kafka-broker
+  ports:
+  - protocol: TCP
+    targetPort: 9092
+    port: 9092
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka
+  labels:
+    app: kafka-broker
+spec:
+  containers:
+  - name: kafka-container
+    image: wurstmeister/kafka
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: KAFKA_ADVERTISED_HOST_NAME
+      value: kafka
+    - name: KAFKA_CREATE_TOPICS
+      value: "tweets:4:1,logs:4:1,cascade_series:4:1,cascade_properties:4:1,models:4:1,samples:4:1,alerts:4:1,stats:4:1"
+    - name: HOST_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP 
+    - name: KAFKA_ZOOKEEPER_CONNECT
+      value: "$(HOST_IP):30185"
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+    - name: KAFKA_ADVERTISED_LISTENERS        
+      value: "PLAINTEXT://$(POD_IP):9092"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+spec:
+  type: NodePort
+  selector:
+    app: prometheus
+  ports:
+  - protocol: TCP
+    targetPort: 9090
+    port: 9090
+    nodePort: 30187
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prometheus-pod
+  labels:
+    app: prometheus
+spec:
+  containers:
+  - name: prometheus-container
+    image: anaslaaroussi/tweetoscope:tweet-prometheus-4.0
+    imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-service
+spec:
+  type: NodePort
+  selector:
+    app: alertmanager
+  ports:
+  - protocol: TCP
+    targetPort: 9093
+    port: 9093
+    nodePort: 30189
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alertmanager-pod
+  labels:
+    app: alertmanager
+spec:
+  containers:
+  - name: alertmanager-container
+    image: prom/alertmanager
+    imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  selector:
+    app: gateway
+  ports:
+  - protocol: TCP
+    targetPort: 9091
+    port: 9091
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gateway-pod
+  labels:
+    app: gateway
+spec:
+  containers:
+  - name: gateway-container
+    image: prom/pushgateway
+    imagePullPolicy: IfNotPresent

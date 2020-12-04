@@ -1,0 +1,16 @@
+## This image is generated using the Dockerfile.base
+FROM anaslaaroussi/tweetoscope:base-1.0
+
+#Copy necessary files
+COPY data/ /generator/data
+COPY ["generator/src","params/params.config","/generator/"]
+#Compile the tweet-generator
+WORKDIR /generator
+RUN g++ -o tweet-generator tweet-generator.cpp -O3 $(pkg-config --cflags --libs gaml) -lpthread -lcppkafka
+CMD ./tweet-generator params.config
+
+
+
+
+
+

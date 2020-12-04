@@ -1,0 +1,6 @@
+FROM anaslaaroussi/tweetoscope:base-1.0
+
+COPY ["collector/src","params/params_collector.config","/collector/"]
+WORKDIR /collector
+RUN g++ -o tweet-collector -O3 -std=c++17 $(pkg-config --libs --cflags gaml) -lpthread -lcppkafka -I.  tweet-collector.cpp Collector.cpp
+CMD ./tweet-collector params_collector.config

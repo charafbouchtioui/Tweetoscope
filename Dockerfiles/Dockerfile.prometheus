@@ -1,0 +1,3 @@
+FROM prom/prometheus
+ADD grafana/prometheus.yml /etc/prometheus/
+ADD grafana/rules.yml /etc/prometheus/
