@@ -17,6 +17,8 @@ The tweetoscope project aims to implement a scalable and maintainable applicatio
 
 The ARE is also received by Prometheus server, which could be plugged in as a Data Source for Grafana to keep monitoring the accuracy of the predictions.
 
+![graph](graph.png)
+
 ## Deployment
 
 ### Prerequisites
